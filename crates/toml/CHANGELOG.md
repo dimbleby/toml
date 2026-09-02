@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixes
+
+- Ensure `DeValue::make_owned` applies to `DeInteger` and `DeFloat`
+
 ## [1.1.4] - 2026-07-28
 
 ### Fixes
