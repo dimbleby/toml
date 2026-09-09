@@ -41,5 +41,9 @@ harness = false
 name = "2-array"
 harness = false
 
+[[bench]]
+name = "3-keys"
+harness = false
+
 [lints]
 workspace = true
