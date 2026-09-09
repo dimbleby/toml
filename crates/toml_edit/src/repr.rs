@@ -224,7 +224,7 @@ impl Decor {
         if let Some(prefix) = self.prefix() {
             prefix.encode_with_default(buf, input, default)
         } else {
-            write!(buf, "{default}")
+            buf.write_str(default)
         }
     }
 
@@ -248,7 +248,7 @@ impl Decor {
         if let Some(suffix) = self.suffix() {
             suffix.encode_with_default(buf, input, default)
         } else {
-            write!(buf, "{default}")
+            buf.write_str(default)
         }
     }
 
