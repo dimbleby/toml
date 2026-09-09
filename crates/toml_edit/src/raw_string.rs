@@ -25,6 +25,15 @@ impl RawString {
         }
     }
 
+    #[cfg(feature = "display")]
+    pub(crate) fn into_string(self) -> Option<String> {
+        match self.0 {
+            RawStringInner::Empty => Some(String::new()),
+            RawStringInner::Explicit(s) => Some(s),
+            RawStringInner::Spanned(_) => None,
+        }
+    }
+
     /// The location within the original document
     ///
     /// This generally requires a [`Document`][crate::Document].

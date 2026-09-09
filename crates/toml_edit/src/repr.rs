@@ -56,9 +56,7 @@ where
         self.as_repr()
             .and_then(|r| r.as_raw().as_str())
             .map(Cow::Borrowed)
-            .unwrap_or_else(|| {
-                Cow::Owned(self.default_repr().as_raw().as_str().unwrap().to_owned())
-            })
+            .unwrap_or_else(|| Cow::Owned(self.default_repr().into_raw().into_string().unwrap()))
     }
 
     /// The location within the original document
@@ -151,6 +149,11 @@ impl Repr {
     /// Access the underlying value
     pub fn as_raw(&self) -> &RawString {
         &self.raw_value
+    }
+
+    #[cfg(feature = "display")]
+    pub(crate) fn into_raw(self) -> RawString {
+        self.raw_value
     }
 
     /// The location within the original document
