@@ -1,5 +1,9 @@
 #![allow(elided_lifetimes_in_paths)]
 
+#[cfg(feature = "alloc-profiler")]
+#[global_allocator]
+static ALLOC: divan::AllocProfiler = divan::AllocProfiler::system();
+
 mod toml_parser {
     use toml_benchmarks::{Data, MANIFESTS};
 
