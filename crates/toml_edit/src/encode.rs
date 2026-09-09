@@ -33,7 +33,7 @@ pub(crate) fn encode_key(this: &Key, buf: &mut dyn Write, input: Option<&str>) -
 }
 
 fn encode_key_path(
-    this: &[Key],
+    this: &[&Key],
     mut buf: &mut dyn Write,
     input: Option<&str>,
     default_decor: (&str, &str),
@@ -214,7 +214,7 @@ impl Display for DocumentMut {
             if let Some(pos) = t.position() {
                 last_position = pos;
             }
-            tables.push((last_position, t, p.clone(), is_array));
+            tables.push((last_position, t, p.to_vec(), is_array));
             Ok(())
         })
         .unwrap();
@@ -231,12 +231,12 @@ impl Display for DocumentMut {
 
 fn visit_nested_tables<'t, F>(
     table: &'t Table,
-    path: &mut Vec<Key>,
+    path: &mut Vec<&'t Key>,
     is_array_of_tables: bool,
     callback: &mut F,
 ) -> Result
 where
-    F: FnMut(&'t Table, &Vec<Key>, bool) -> Result,
+    F: FnMut(&'t Table, &[&'t Key], bool) -> Result,
 {
     if !table.is_dotted() {
         callback(table, path, is_array_of_tables)?;
@@ -245,14 +245,12 @@ where
     for (key, value) in table.items.iter() {
         match value {
             Item::Table(t) => {
-                let key = key.clone();
                 path.push(key);
                 visit_nested_tables(t, path, false, callback)?;
                 path.pop();
             }
             Item::ArrayOfTables(a) => {
                 for t in a.iter() {
-                    let key = key.clone();
                     path.push(key);
                     visit_nested_tables(t, path, true, callback)?;
                     path.pop();
@@ -274,7 +272,7 @@ where
 ///   when the leaf decor prefix contains newlines.
 /// - `inside_header`: `&Decor` to use around the key path inside the brackets.
 fn leaf_decor_before_bracket<'a>(
-    path: &'a [Key],
+    path: &'a [&Key],
     input: Option<&str>,
 ) -> (Option<&'a Decor>, &'a Decor) {
     let Some(last_key) = path.last() else {
@@ -297,7 +295,7 @@ fn visit_table(
     mut buf: &mut dyn Write,
     input: Option<&str>,
     table: &Table,
-    path: &[Key],
+    path: &[&Key],
     is_array_of_tables: bool,
     first_table: &mut bool,
 ) -> Result {
