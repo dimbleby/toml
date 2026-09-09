@@ -32,44 +32,13 @@ pub(crate) fn encode_key(this: &Key, buf: &mut dyn Write, input: Option<&str>) -
     Ok(())
 }
 
-fn encode_key_path(
+pub(crate) fn encode_key_path(
     this: &[&Key],
     mut buf: &mut dyn Write,
     input: Option<&str>,
     default_decor: (&str, &str),
     leaf_decor: &Decor,
 ) -> Result {
-    for (i, key) in this.iter().enumerate() {
-        let dotted_decor = key.dotted_decor();
-
-        let first = i == 0;
-        let last = i + 1 == this.len();
-
-        if first {
-            leaf_decor.prefix_encode(buf, input, default_decor.0)?;
-        } else {
-            buf.key_sep()?;
-            dotted_decor.prefix_encode(buf, input, DEFAULT_KEY_PATH_DECOR.0)?;
-        }
-
-        encode_key(key, buf, input)?;
-
-        if last {
-            leaf_decor.suffix_encode(buf, input, default_decor.1)?;
-        } else {
-            dotted_decor.suffix_encode(buf, input, DEFAULT_KEY_PATH_DECOR.1)?;
-        }
-    }
-    Ok(())
-}
-
-pub(crate) fn encode_key_path_ref(
-    this: &[&Key],
-    mut buf: &mut dyn Write,
-    input: Option<&str>,
-    default_decor: (&str, &str),
-) -> Result {
-    let leaf_decor = this.last().expect("always at least one key").leaf_decor();
     for (i, key) in this.iter().enumerate() {
         let dotted_decor = key.dotted_decor();
 
@@ -170,7 +139,11 @@ pub(crate) fn encode_table(
         } else {
             DEFAULT_VALUE_DECOR
         };
-        encode_key_path_ref(&key_path, buf, input, DEFAULT_INLINE_KEY_DECOR)?;
+        let leaf_decor = key_path
+            .last()
+            .expect("always at least one key")
+            .leaf_decor();
+        encode_key_path(&key_path, buf, input, DEFAULT_INLINE_KEY_DECOR, leaf_decor)?;
         buf.keyval_sep()?;
         encode_value(value, buf, input, inner_decor)?;
     }
@@ -353,7 +326,11 @@ fn visit_table(
     }
     // print table body
     for (key_path, value) in children {
-        encode_key_path_ref(&key_path, buf, input, DEFAULT_KEY_DECOR)?;
+        let leaf_decor = key_path
+            .last()
+            .expect("always at least one key")
+            .leaf_decor();
+        encode_key_path(&key_path, buf, input, DEFAULT_KEY_DECOR, leaf_decor)?;
         buf.keyval_sep()?;
         encode_value(value, buf, input, DEFAULT_VALUE_DECOR)?;
         writeln!(buf)?;
