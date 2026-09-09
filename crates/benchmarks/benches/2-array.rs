@@ -116,6 +116,14 @@ mod toml_edit {
             .input_counter(divan::counter::BytesCount::of_str)
             .bench_values(|sample| sample.parse::<toml_edit::DocumentMut>().unwrap());
     }
+
+    #[divan::bench(args = NUM_ENTRIES)]
+    fn dump(bencher: divan::Bencher, num_entries: usize) {
+        let document = generate(num_entries)
+            .parse::<toml_edit::DocumentMut>()
+            .unwrap();
+        bencher.bench(|| std::hint::black_box(&document).to_string());
+    }
 }
 
 mod toml {
@@ -149,6 +157,12 @@ mod toml {
             .input_counter(divan::counter::BytesCount::of_str)
             .bench_values(|sample| sample.parse::<toml::Table>().unwrap());
     }
+
+    #[divan::bench(args = NUM_ENTRIES)]
+    fn dump(bencher: divan::Bencher, num_entries: usize) {
+        let document = generate(num_entries).parse::<toml::Table>().unwrap();
+        bencher.bench(|| toml::to_string(std::hint::black_box(&document)).unwrap());
+    }
 }
 
 mod toml_v05 {
@@ -161,6 +175,12 @@ mod toml_v05 {
             .with_inputs(|| generate(num_entries))
             .input_counter(divan::counter::BytesCount::of_str)
             .bench_values(|sample| sample.parse::<toml_old::Value>().unwrap());
+    }
+
+    #[divan::bench(args = NUM_ENTRIES)]
+    fn dump(bencher: divan::Bencher, num_entries: usize) {
+        let document = generate(num_entries).parse::<toml_old::Value>().unwrap();
+        bencher.bench(|| toml_old::to_string(std::hint::black_box(&document)).unwrap());
     }
 }
 
