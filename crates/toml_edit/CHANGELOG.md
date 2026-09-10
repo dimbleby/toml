@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Performance
+
+- Reduced allocations when parsing
+- Reduced allocations when rendering a TOML document
+- Speed up rendering of a TOML document
+
 ## [0.25.13] - 2026-07-14
 
 ### Fixes
